@@ -21,38 +21,56 @@
 
 // export default App;
 
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import RecipeReviewCard from "./assets/Components/Box/Box";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
-import { getApiProducts } from "./assets/Redux/features/Product/ProductSlice";
+import { getApiProducts, getFilter } from "./assets/Redux/features/Product/ProductSlice";
 import Variants from "./assets/Components/LoadingBox/LoadingBox";
 
 const App = () => {
   const dispatch = useDispatch();
   let { data } = useSelector((state) => state.products);
   let { loading } = useSelector((state) => state.products);
+  let { category } = useSelector((state) => state.products);
+  let {categorFilter } = useSelector((state) => state.products);
 
   useEffect(() => {
     dispatch(getApiProducts());
+    console.log(categorFilter);    
   }, []);
 
+
   return (
-    <div  
-      style={{
-        width: "87%",
-        margin: "auto",
-        display: "flex",
-        flexWrap: "wrap",
-        justifyContent:"space-evenly",
-        gap: "10px",
-      }}
-    >
-      {loading
-        ? data.map((item, index) => <Variants key={index} />)
-        : data &&
-          data.map((item) => <RecipeReviewCard key={item.id} item={item} />)}
-    </div>
+    <>
+      <div>
+        <h1>Category</h1>
+        {category &&
+          category.map((categoryName, i) => (
+            <button onClick={() => dispatch(getFilter(categoryName))} key={i}>
+              {categoryName}
+            </button>
+          ))}
+      </div>
+
+      <div
+        style={{
+          width: "87%",
+          margin: "auto",
+          display: "flex",
+          flexWrap: "wrap",
+          justifyContent: "space-evenly",
+          gap: "10px",
+        }}
+      >
+        {loading
+          ? data && data.map((item, index) => <Variants key={index} />)
+          : categorFilter &&
+            categorFilter.map((item) => (
+              <RecipeReviewCard key={item.id} item={item} />
+            ))}
+      </div>
+    </>
   );
 };
 
